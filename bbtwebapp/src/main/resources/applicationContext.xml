@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+        xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        ">
+
+     <!--先扫描包-->
+     <context:component-scan base-package="com.bbt"></context:component-scan>
+
+    <!--springmvc的配置-->
+    <mvc:annotation-driven></mvc:annotation-driven>
+
+    <!--静态资源访问-->
+    <!--<mvc:resources
+            location="/,/WEB-INF/pic/"
+            mapping="/**"/>-->
+
+
+     <!--让spring去生成sqlSessionFacotry-->
+     <bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+          <property name="dataSource" ref="mydatasource"></property>
+          <property name="configLocation" value="classpath:mybatis.xml"></property>
+     </bean>
+
+      <!--让spring去产生dao的实例 会在容器里通过session产生该接口的实例-->
+    <!--<bean class="org.mybatis.spring.mapper.MapperFactoryBean">
+         <property name="mapperInterface" value="com.cskaoyan.dao.UserDao"></property>
+         <property name="sqlSessionFactory" ref="sessionFactory" ></property>
+    </bean>-->
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.bbt.dao"></property>
+        <property name="sqlSessionFactoryBeanName" value="sessionFactory"></property>
+    </bean>
+
+
+
+    <!--增加spring来控制事物-->
+
+    <tx:annotation-driven transaction-manager="txmanager"></tx:annotation-driven>
+
+    <bean id="txmanager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="mydatasource"></property>
+    </bean>
+
+
+    <bean id="mydatasource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="password" value="123456"></property>
+        <property name="user" value="root"></property>
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/logindemo?serverTimezone=GMT"></property>
+        <property name="driverClass" value="com.mysql.cj.jdbc.Driver"></property>
+    </bean>
+
+
+</beans>
